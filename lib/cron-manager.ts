@@ -9,7 +9,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY!
 );
 
-let cronJobs: cron.ScheduledTask[] = [];
+let cronJobs: ReturnType<typeof cron.schedule>[] = [];
 
 export function startCronJobs() {
   console.log('\n🕐 Starting cron jobs for localhost...\n');
