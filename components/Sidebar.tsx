@@ -97,9 +97,9 @@ export const Sidebar = () => {
 
         {/* Copyright */}
         <div className="text-center pt-2">
-          <p className="text-xs text-gray-500">© 2025 Titan Bros</p>
+          <p className="text-xs text-gray-500">© 2025 Minh Quyet</p>
           <p className="text-xs text-gray-400 mt-1">
-            A product of <span className="text-[#ff6726] font-medium">Titanlabs</span> • Alex Le
+            A product of <span className="text-[#ff6726] font-medium">MinhQuyet.Com</span>
           </p>
         </div>
       </div>
