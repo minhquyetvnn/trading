@@ -27,7 +27,7 @@ interface MarketDataWithExtras extends MarketDataBase {
   btcDominance?: number;
   support: number;
   resistance: number;
-  volumeTrend: number;
+  volumeTrend: string; // string để khớp với MarketData
 }
 
 export async function POST(request: NextRequest) {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       coin,
       support: (marketDataRaw as any).support ?? 0,
       resistance: (marketDataRaw as any).resistance ?? 0,
-      volumeTrend: (marketDataRaw as any).volumeTrend ?? 0
+      volumeTrend: (marketDataRaw as any).volumeTrend?.toString() ?? "0"
     };
 
     // 3. Thêm BTC dominance
