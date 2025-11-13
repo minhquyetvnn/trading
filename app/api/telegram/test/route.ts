@@ -19,18 +19,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-Tạo file src/app/api/telegram/status/route.ts:
-
-Copyimport { NextRequest, NextResponse } from 'next/server';
-
-export async function GET(request: NextRequest) {
-  const connected = !!(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID);
-
-  return NextResponse.json({
-    connected,
-    configured: {
-      botToken: !!process.env.TELEGRAM_BOT_TOKEN,
-      chatId: !!process.env.TELEGRAM_CHAT_ID
-    }
-  });
-}
