@@ -4,8 +4,25 @@ import { generateTradingSignal } from '@/lib/ai-trader';
 import { savePrediction, getHistoricalPerformance } from '@/lib/performance-tracker';
 import { fetchMarketData } from '@/lib/market-data';
 
-// Interface mở rộng để TS chấp nhận coin và btcDominance
-interface MarketDataWithExtras extends ReturnType<typeof calculateAllIndicators> {
+// -----------------------------
+// Interface cho object thị trường thực tế
+// -----------------------------
+interface MarketDataBase {
+  currentPrice: number;
+  priceChange24h: number;
+  rsi: number;
+  macd: number;
+  macdSignal: number;
+  macdHistogram: number;
+  bollingerUpper: number;
+  bollingerMiddle: number;
+  bollingerLower: number;
+  volume: number;
+  volumeRatio: number;
+  // thêm các property khác nếu calculateAllIndicators trả về
+}
+
+interface MarketDataWithExtras extends MarketDataBase {
   coin: string;
   btcDominance?: number;
 }
@@ -25,10 +42,10 @@ export async function POST(request: NextRequest) {
 
     // 1. Calculate technical indicators
     console.log('📊 Step 1: Calculating technical indicators...');
-    const marketDataRaw = await calculateAllIndicators(`${coin}USDT`);
+    const marketDataRaw: MarketDataBase = await calculateAllIndicators(`${coin}USDT`);
     let marketData: MarketDataWithExtras = { ...marketDataRaw, coin };
 
-    // 2. Get BTC dominance (nếu có)
+    // 2. Get BTC dominance nếu coin không phải BTC
     if (coin !== 'BTC') {
       try {
         const globalData = await fetchMarketData();
