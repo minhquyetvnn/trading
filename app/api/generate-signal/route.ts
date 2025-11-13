@@ -19,19 +19,21 @@ export async function POST(request: NextRequest) {
 
     // 1. Calculate technical indicators
     console.log('📊 Step 1: Calculating technical indicators...');
-    const marketData = await calculateAllIndicators(`${coin}USDT`);
-    marketData.coin = coin;
+    const marketDataRaw = await calculateAllIndicators(`${coin}USDT`);
+    let marketData = { ...marketDataRaw, coin }; // ✅ tạo object mới có coin
 
     // 2. Get BTC dominance (nếu có)
     if (coin !== 'BTC') {
       try {
         const globalData = await fetchMarketData();
-        marketData.btcDominance = globalData.btcDominance;
+        marketData = { ...marketData, btcDominance: globalData.btcDominance };
         console.log(`📈 BTC Dominance: ${globalData.btcDominance.toFixed(2)}%`);
       } catch (error) {
         console.log('⚠️ Could not fetch BTC dominance');
-        marketData.btcDominance = 59.3; // Default fallback
+        marketData = { ...marketData, btcDominance: 59.3 }; // fallback
       }
+    } else {
+      marketData = { ...marketData, btcDominance: 100 }; // BTC dominance = 100% cho BTC
     }
 
     // 3. Get historical performance
@@ -57,6 +59,7 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString()
       },
       marketData: {
+        coin: marketData.coin,
         price: marketData.currentPrice,
         priceChange24h: marketData.priceChange24h,
         rsi: marketData.rsi,
@@ -72,10 +75,10 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Generate signal error:', error);
-    
+
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: error.message || 'Failed to generate signal',
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
       },
