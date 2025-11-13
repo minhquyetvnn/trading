@@ -3,9 +3,36 @@
 import { useState } from 'react';
 import { Copy, Check, ExternalLink, Zap } from 'lucide-react';
 
+// Define proper types
+interface Signal {
+  coin: string;
+  action: string;
+  signalType: string;
+  confidence: number;
+  timeframe: string;
+  entryPrice: number;
+  stopLoss: number;
+  takeProfit1: number;
+  takeProfit2: number;
+  takeProfit3: number;
+  positionSize: number;
+  capitalAllocated: number;
+  riskRewardRatio: number;
+  reasoning: string;
+}
+
 interface TradeNowButtonProps {
-  signal: any;
+  signal: Signal;
   onCopySuccess?: () => void;
+}
+
+type ColorType = 'blue' | 'red' | 'green';
+
+interface PriceLevelProps {
+  label: string;
+  price: number;
+  percentage?: string;
+  color: ColorType;
 }
 
 export const TradeNowButton = ({ signal, onCopySuccess }: TradeNowButtonProps) => {
@@ -244,9 +271,9 @@ ${signal.reasoning}
   );
 };
 
-// Helper component
-const PriceLevel = ({ label, price, percentage, color }: any) => {
-  const colorClasses = {
+// Helper component with proper types
+const PriceLevel = ({ label, price, percentage, color }: PriceLevelProps) => {
+  const colorClasses: Record<ColorType, string> = {
     blue: 'bg-blue-50 border-blue-200 text-blue-900',
     red: 'bg-red-50 border-red-200 text-red-900',
     green: 'bg-green-50 border-green-200 text-green-900'
