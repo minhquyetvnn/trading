@@ -5,7 +5,7 @@ import { savePrediction, getHistoricalPerformance } from '@/lib/performance-trac
 import { fetchMarketData } from '@/lib/market-data';
 
 // -----------------------------
-// Interface cho object thị trường thực tế
+// Interface mở rộng cho MarketData
 // -----------------------------
 interface MarketDataBase {
   currentPrice: number;
@@ -19,12 +19,15 @@ interface MarketDataBase {
   bollingerLower: number;
   volume: number;
   volumeRatio: number;
-  // thêm các property khác nếu calculateAllIndicators trả về
+  // thêm property khác từ calculateAllIndicators nếu có
 }
 
 interface MarketDataWithExtras extends MarketDataBase {
   coin: string;
   btcDominance?: number;
+  support: number;
+  resistance: number;
+  volumeTrend: number;
 }
 
 export async function POST(request: NextRequest) {
@@ -32,10 +35,7 @@ export async function POST(request: NextRequest) {
     const { coin } = await request.json();
 
     if (!coin) {
-      return NextResponse.json(
-        { success: false, error: 'Coin symbol is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Coin symbol is required' }, { status: 400 });
     }
 
     console.log(`\n🚀 Generating trading signal for ${coin}...`);
@@ -43,44 +43,47 @@ export async function POST(request: NextRequest) {
     // 1. Calculate technical indicators
     console.log('📊 Step 1: Calculating technical indicators...');
     const marketDataRaw: MarketDataBase = await calculateAllIndicators(`${coin}USDT`);
-    let marketData: MarketDataWithExtras = { ...marketDataRaw, coin };
 
-    // 2. Get BTC dominance nếu coin không phải BTC
+    // 2. Tạo object MarketData đầy đủ property
+    let marketData: MarketDataWithExtras = {
+      ...marketDataRaw,
+      coin,
+      support: (marketDataRaw as any).support ?? 0,
+      resistance: (marketDataRaw as any).resistance ?? 0,
+      volumeTrend: (marketDataRaw as any).volumeTrend ?? 0
+    };
+
+    // 3. Thêm BTC dominance
     if (coin !== 'BTC') {
       try {
         const globalData = await fetchMarketData();
         marketData.btcDominance = globalData.btcDominance;
         console.log(`📈 BTC Dominance: ${globalData.btcDominance.toFixed(2)}%`);
-      } catch (error) {
+      } catch {
         console.log('⚠️ Could not fetch BTC dominance');
-        marketData.btcDominance = 59.3; // fallback
+        marketData.btcDominance = 59.3;
       }
     } else {
-      marketData.btcDominance = 100; // BTC dominance
+      marketData.btcDominance = 100;
     }
 
-    // 3. Get historical performance
+    // 4. Get historical performance
     console.log('📈 Step 2: Fetching AI historical performance...');
     const historicalPerformance = await getHistoricalPerformance(coin, 30, '24h');
 
-    // 4. Generate AI signal
+    // 5. Generate AI signal
     console.log('🤖 Step 3: Calling DeepSeek AI...');
     const signal = await generateTradingSignal(marketData, historicalPerformance);
 
-    // 5. Save prediction to database
+    // 6. Save prediction to database
     console.log('💾 Step 4: Saving prediction...');
     const predictionId = await savePrediction(coin, marketData, signal);
 
-    // 6. Return response
     console.log('✅ Signal generated successfully!\n');
 
     return NextResponse.json({
       success: true,
-      signal: {
-        ...signal,
-        predictionId,
-        timestamp: new Date().toISOString()
-      },
+      signal: { ...signal, predictionId, timestamp: new Date().toISOString() },
       marketData: {
         coin: marketData.coin,
         price: marketData.currentPrice,
@@ -98,7 +101,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Generate signal error:', error);
-
     return NextResponse.json(
       {
         success: false,
@@ -117,13 +119,9 @@ export async function GET(request: NextRequest) {
     const coin = searchParams.get('coin');
 
     if (!coin) {
-      return NextResponse.json(
-        { success: false, error: 'Coin parameter is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: 'Coin parameter is required' }, { status: 400 });
     }
 
-    // Lấy prediction mới nhất
     const { createClient } = await import('@supabase/supabase-js');
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -139,10 +137,7 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error || !data) {
-      return NextResponse.json(
-        { success: false, error: 'No predictions found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: 'No predictions found' }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -161,9 +156,6 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('❌ Get signal error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch signal' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Failed to fetch signal' }, { status: 500 });
   }
 }
