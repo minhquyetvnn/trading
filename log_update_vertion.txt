@@ -1,0 +1,11 @@
+--- v1 ---
+1. fix lỗi tự động run now theo cài sẵn
+2. fix lỗi thông báo khi có lệnh lên telegram
+3. chạy ngon ở mức tự động tìm lệnh, khi có lệnh bắn về tele
+
+--- v2 ---
+1. bổ sung auto refesh giá sau 30000 (30s): api/trading-signals/page.tsx
+
+--- v3 ---
+1. Update menu AI Tradding ==> theo dõi xem nó chạy như nào
+-- chạy tương đối ngon --

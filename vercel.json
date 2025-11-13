@@ -1,0 +1,32 @@
+{
+  "crons": [
+    {
+      "path": "/api/update-results",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/signals/update-prices",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/signals/auto-generate",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/daily-summary",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/check-predictions-1h",
+      "schedule": "5 * * * *"
+    },
+    {
+      "path": "/api/cron/check-predictions-24h",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/check-predictions-7d",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
