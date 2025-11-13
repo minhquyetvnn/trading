@@ -4,7 +4,7 @@ import { telegramService } from '@/lib/telegram-service';
 export async function POST(request: NextRequest) {
   try {
     const success = await telegramService.sendMessage(
-      '✅ <b>Test Message</b>\n\nYour Telegram bot is working correctly!\n\n🤖 Titan Bros Trading Bot'
+      '✅ <b>Test Message</b>\n\nYour Telegram bot is working correctly!\n\n🤖 Minh Quyet Trading Bot'
     );
 
     return NextResponse.json({
