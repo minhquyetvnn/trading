@@ -93,6 +93,12 @@ export const SignalCard = ({ signal, onClose }: SignalCardProps) => {
   const priceChangePercent = ((signal.currentPrice - signal.entryPrice) / signal.entryPrice) * 100;
   const isPositive = signal.action === 'BUY' ? priceChangePercent > 0 : priceChangePercent < 0;
 
+  // Create a compatible signal object for TradeNowButton with default reasoning
+  const tradeSignal = {
+    ...signal,
+    reasoning: signal.reasoning || 'No reasoning provided'
+  };
+
   return (
     <div className={`bg-white rounded-xl border-2 ${getActionBorderColor(signal.action)} p-5 shadow-lg hover:shadow-xl transition-all`}>
       
@@ -247,7 +253,7 @@ export const SignalCard = ({ signal, onClose }: SignalCardProps) => {
       {signal.status !== 'CLOSED' && signal.status !== 'SL_HIT' && signal.status !== 'TP3_HIT' ? (
         <div className="space-y-2">
           {/* Trade Now Button */}
-          <TradeNowButton signal={signal} />
+          <TradeNowButton signal={tradeSignal} />
           
           {/* Close Position Button */}
           {onClose && (
