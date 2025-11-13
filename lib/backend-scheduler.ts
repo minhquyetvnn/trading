@@ -1,4 +1,4 @@
-import * as cron from 'node-cron';
+import cron from 'node-cron';
 
 interface SchedulerConfig {
     interval: number;
@@ -8,7 +8,7 @@ interface SchedulerConfig {
 }
 
 class BackendScheduler {
-    private task: cron.ScheduledTask | null = null;
+    private task: ReturnType<typeof cron.schedule> | null = null;
     private config: SchedulerConfig = {
         interval: 15,
         enabled: false
@@ -40,7 +40,6 @@ class BackendScheduler {
         this.task = cron.schedule(cronExpression, async () => {
             await this.executeTask();
         }, {
-            scheduled: true,
             timezone: "Asia/Ho_Chi_Minh"
         });
 
@@ -95,7 +94,7 @@ class BackendScheduler {
             console.log('🔍 Checking if should send notification...');
             console.log('📊 Total signals:', result.totalSignals);
 
-            await this.sendTelegramNotification(result); // ✅ Luôn gửi để test
+            await this.sendTelegramNotification(result);
 
             if (result.totalSignals > 0) {
                 console.log('✅ Signals generated, notification sent');
